@@ -1,0 +1,560 @@
+from fastapi import FastAPI, File, UploadFile, HTTPException, Form, Depends, APIRouter
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel
+from typing import List, Optional, Dict, Any
+import os
+import shutil
+from datetime import datetime, timedelta
+import json
+
+# Import our modules
+from database import db
+from resume_parser import resume_parser
+from jd_parser import jd_parser
+from matcher import rag_matcher
+from scorer import mcp_scorer
+from scheduler import interview_scheduler
+from messenger import llm_messenger
+
+# Create FastAPI app
+app = FastAPI(
+    title="Agentic AI Hiring Assistant",
+    description="AI-powered hiring system with RAG matching, MCP scoring, and automated communication",
+    version="1.0.0"
+)
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # In production, specify actual frontend URL
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Create API router
+api_router = APIRouter(prefix="/api")
+
+# Create upload directories
+os.makedirs("uploads/resumes", exist_ok=True)
+os.makedirs("uploads/job_descriptions", exist_ok=True)
+os.makedirs("uploads/videos", exist_ok=True)
+
+# Pydantic models
+class JobDescriptionCreate(BaseModel):
+    title: str
+    description: str
+    requirements: Optional[str] = ""
+    skills: Optional[str] = ""
+
+class ScheduleRequest(BaseModel):
+    candidate_id: int
+    job_id: int
+    slot_id: int
+    interviewer_name: str
+    meeting_link: Optional[str] = ""
+
+class MessageRequest(BaseModel):
+    candidate_id: int
+    job_id: int
+    message_type: str
+    additional_context: Optional[Dict] = None
+
+class BulkMessageRequest(BaseModel):
+    candidate_ids: List[int]
+    job_id: int
+    message_type: str
+    additional_context: Optional[Dict] = None
+
+class TimeSlotCreate(BaseModel):
+    start_date: str
+    end_date: str
+    interviewer_name: str
+
+# Root endpoint
+@app.get("/")
+async def root():
+    return {
+        "message": "Agentic AI Hiring Assistant API",
+        "version": "1.0.0",
+        "status": "active"
+    }
+
+# Health check endpoint
+@app.get("/health")
+async def health_check():
+    return {
+        "status": "healthy",
+        "timestamp": datetime.now().isoformat(),
+        "database": "connected",
+        "services": {
+            "resume_parser": "active",
+            "job_matcher": "active",
+            "scheduler": "active",
+            "messenger": "active"
+        }
+    }
+
+# Job Description endpoints
+@api_router.post("/upload-jd")
+async def upload_job_description(
+    file: Optional[UploadFile] = File(None),
+    title: str = Form(...),
+    description: Optional[str] = Form(None)
+):
+    """Upload job description (PDF file or text input)"""
+    try:
+        if file and file.filename.endswith('.pdf'):
+            # Save uploaded file
+            file_path = f"uploads/job_descriptions/{file.filename}"
+            with open(file_path, "wb") as buffer:
+                shutil.copyfileobj(file.file, buffer)
+            
+            # Parse PDF job description
+            jd_data = jd_parser.parse_job_description(pdf_path=file_path)
+        elif description:
+            # Parse text job description
+            jd_data = jd_parser.parse_job_description(text=description)
+            jd_data['title'] = title
+        else:
+            raise HTTPException(status_code=400, detail="Either PDF file or description text is required")
+        
+        # Store in database
+        job_id = db.insert_job_description(
+            title=jd_data['title'],
+            description=jd_data['description'],
+            requirements=json.dumps(jd_data.get('requirements', [])),
+            skills=json.dumps(jd_data['skills'])
+        )
+        
+        return {
+            "success": True,
+            "job_id": job_id,
+            "parsed_data": jd_data
+        }
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error processing job description: {str(e)}")
+
+@api_router.get("/jobs")
+async def get_all_jobs():
+    """Get all job descriptions"""
+    try:
+        jobs = db.get_all_job_descriptions()
+        return {
+            "success": True,
+            "jobs": jobs
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching jobs: {str(e)}")
+
+@api_router.get("/jobs/{job_id}")
+async def get_job_description(job_id: int):
+    """Get specific job description"""
+    try:
+        job = db.get_job_description(job_id)
+        if not job:
+            raise HTTPException(status_code=404, detail="Job not found")
+        
+        return {
+            "success": True,
+            "job": job
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching job: {str(e)}")
+
+# Resume upload and candidate management
+@api_router.post("/upload-resume")
+async def upload_resume(
+    file: UploadFile = File(...),
+    github_url: Optional[str] = Form(None),
+    video_intro: Optional[UploadFile] = File(None)
+):
+    """Upload and parse resume with optional GitHub and video intro"""
+    try:
+        # Check file extension
+        file_extension = os.path.splitext(file.filename)[1].lower()
+        if file_extension not in ['.pdf', '.txt', '.text']:
+            raise HTTPException(status_code=400, detail="Only PDF and TXT files are supported")
+        
+        # Create uploads directory if it doesn't exist
+        os.makedirs("uploads/resumes", exist_ok=True)
+        
+        # Save resume file
+        resume_path = f"uploads/resumes/{file.filename}"
+        with open(resume_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+        
+        # Parse resume
+        candidate_data = resume_parser.parse_resume(resume_path)
+        
+        # Handle video intro if provided
+        video_path = None
+        if video_intro:
+            os.makedirs("uploads/videos", exist_ok=True)
+            video_path = f"uploads/videos/{video_intro.filename}"
+            with open(video_path, "wb") as buffer:
+                shutil.copyfileobj(video_intro.file, buffer)
+        
+        # Add additional data
+        candidate_data['github_url'] = github_url
+        candidate_data['video_intro_path'] = video_path
+        
+        # Store in database
+        candidate_id = db.insert_candidate(candidate_data)
+        
+        return {
+            "success": True,
+            "candidate_id": candidate_id,
+            "parsed_data": candidate_data
+        }
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error processing resume: {str(e)}")
+
+# Candidate ranking and matching
+@api_router.get("/candidates")
+async def get_candidates(job_id: Optional[int] = None):
+    """Get ranked candidates for a specific job or all candidates"""
+    try:
+        if job_id:
+            # Get candidates with scores for specific job
+            candidates = db.get_candidates_with_scores(job_id)
+            job_data = db.get_job_description(job_id)
+            
+            if not job_data:
+                raise HTTPException(status_code=404, detail="Job not found")
+            
+            # If candidates don't have scores, compute them
+            unscored_candidates = [c for c in candidates if c['final_score'] is None]
+            
+            if unscored_candidates:
+                # Compute RAG matching and MCP scores
+                for candidate in unscored_candidates:
+                    # Compute RAG match
+                    match_result = rag_matcher.compute_overall_match(candidate, job_data)
+                    
+                    # Compute MCP score
+                    mcp_result = mcp_scorer.compute_mcp_score(
+                        candidate, job_data, match_result['final_score']
+                    )
+                    
+                    # Store scores in database
+                    score_data = {
+                        'candidate_id': candidate['id'],
+                        'job_id': job_id,
+                        'match_score': match_result['final_score'],
+                        'experience_score': mcp_result['component_scores']['experience_score'],
+                        'education_score': mcp_result['component_scores']['education_score'],
+                        'final_score': mcp_result['final_score'],
+                        'matched_skills': match_result['skills_match']['matched_skills'],
+                        'missing_skills': match_result['skills_match']['missing_skills']
+                    }
+                    
+                    db.insert_candidate_score(score_data)
+                
+                # Refresh candidates list
+                candidates = db.get_candidates_with_scores(job_id)
+            
+            return {
+                "success": True,
+                "candidates": candidates,
+                "job": job_data
+            }
+        else:
+            # Get all candidates without specific job matching
+            conn = db.get_connection()
+            cursor = conn.cursor()
+            cursor.execute('SELECT * FROM candidates ORDER BY created_at DESC')
+            rows = cursor.fetchall()
+            conn.close()
+            
+            candidates = []
+            for row in rows:
+                candidates.append({
+                    'id': row[0],
+                    'name': row[1],
+                    'email': row[2],
+                    'phone': row[3],
+                    'skills': json.loads(row[4]) if row[4] else [],
+                    'experience_years': row[5],
+                    'education_level': row[6],
+                    'education_score': row[7],
+                    'resume_path': row[8],
+                    'github_url': row[9],
+                    'video_intro_path': row[10],
+                    'created_at': row[11]
+                })
+            
+            return {
+                "success": True,
+                "candidates": candidates
+            }
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching candidates: {str(e)}")
+
+@api_router.get("/candidate/{candidate_id}")
+async def get_candidate_profile(candidate_id: int, job_id: Optional[int] = None):
+    """Get detailed candidate profile with optional job matching insights"""
+    try:
+        candidate = db.get_candidate_by_id(candidate_id)
+        if not candidate:
+            raise HTTPException(status_code=404, detail="Candidate not found")
+        
+        profile = {
+            "candidate": candidate,
+            "message_history": llm_messenger.get_message_history(candidate_id)
+        }
+        
+        if job_id:
+            job_data = db.get_job_description(job_id)
+            if job_data:
+                # Get matching insights
+                match_insights = rag_matcher.get_match_insights(candidate, job_data)
+                profile["match_insights"] = match_insights
+                profile["job"] = job_data
+        
+        return {
+            "success": True,
+            "profile": profile
+        }
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching candidate profile: {str(e)}")
+
+# Interview scheduling endpoints
+@api_router.post("/schedule/slots")
+async def create_time_slots(slot_request: TimeSlotCreate):
+    """Create available time slots for interviews"""
+    try:
+        start_date = datetime.fromisoformat(slot_request.start_date)
+        end_date = datetime.fromisoformat(slot_request.end_date)
+        
+        # Generate slots
+        slots = interview_scheduler.generate_available_slots(
+            start_date, end_date, slot_request.interviewer_name
+        )
+        
+        # Add to database
+        slot_ids = interview_scheduler.add_available_slots(slots)
+        
+        return {
+            "success": True,
+            "slots_created": len(slot_ids),
+            "slot_ids": slot_ids
+        }
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error creating time slots: {str(e)}")
+
+@api_router.get("/schedule/slots")
+async def get_available_slots(interviewer_name: Optional[str] = None):
+    """Get available time slots"""
+    try:
+        slots = interview_scheduler.get_available_slots(interviewer_name)
+        return {
+            "success": True,
+            "slots": slots
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching slots: {str(e)}")
+
+@api_router.post("/schedule")
+async def schedule_interview(schedule_request: ScheduleRequest):
+    """Schedule an interview"""
+    try:
+        result = interview_scheduler.schedule_interview(
+            schedule_request.candidate_id,
+            schedule_request.job_id,
+            schedule_request.slot_id,
+            schedule_request.interviewer_name,
+            schedule_request.meeting_link
+        )
+        
+        if result['success']:
+            # Send interview confirmation message
+            interview_details = {
+                'scheduled_time': result['scheduled_time'],
+                'interviewer_name': result['interviewer'],
+                'meeting_link': result['meeting_link']
+            }
+            
+            message_result = llm_messenger.create_interview_confirmation_message(
+                schedule_request.candidate_id,
+                schedule_request.job_id,
+                interview_details
+            )
+            
+            result['message_sent'] = message_result['success']
+        
+        return result
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error scheduling interview: {str(e)}")
+
+@api_router.get("/schedule")
+async def get_interview_schedule(
+    interviewer_name: Optional[str] = None,
+    date: Optional[str] = None
+):
+    """Get interview schedule"""
+    try:
+        date_obj = datetime.fromisoformat(date) if date else None
+        schedule = interview_scheduler.get_interview_schedule(date=date_obj, interviewer_name=interviewer_name)
+        
+        return {
+            "success": True,
+            "schedule": schedule
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching schedule: {str(e)}")
+
+# Messaging endpoints
+@api_router.post("/send-message")
+async def send_message(message_request: MessageRequest):
+    """Generate and send a message to a candidate"""
+    try:
+        result = llm_messenger.generate_and_send_message(
+            message_request.candidate_id,
+            message_request.message_type,
+            message_request.job_id,
+            message_request.additional_context
+        )
+        
+        return result
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error sending message: {str(e)}")
+
+@api_router.post("/message/bulk")
+async def send_bulk_messages(bulk_request: BulkMessageRequest):
+    """Send messages to multiple candidates"""
+    try:
+        results = llm_messenger.send_bulk_messages(
+            bulk_request.candidate_ids,
+            bulk_request.message_type,
+            bulk_request.job_id,
+            bulk_request.additional_context
+        )
+        
+        return {
+            "success": True,
+            "results": results
+        }
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error sending bulk messages: {str(e)}")
+
+@api_router.get("/message/templates")
+async def get_message_templates():
+    """Get available message templates"""
+    try:
+        templates = llm_messenger.get_message_templates()
+        return {
+            "success": True,
+            "templates": templates
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching templates: {str(e)}")
+
+@api_router.get("/message/history/{candidate_id}")
+async def get_message_history(candidate_id: int):
+    """Get message history for a candidate"""
+    try:
+        history = llm_messenger.get_message_history(candidate_id)
+        return {
+            "success": True,
+            "history": history
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching message history: {str(e)}")
+
+# Add missing messages endpoint
+@api_router.get("/messages")
+async def get_all_messages():
+    """Get all messages"""
+    try:
+        messages = llm_messenger.get_all_messages()
+        return {
+            "success": True,
+            "messages": messages
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching messages: {str(e)}")
+
+# Dashboard and analytics endpoints
+@api_router.get("/dashboard")
+async def get_dashboard_data():
+    """Get dashboard data with insights"""
+    try:
+        # Get basic statistics
+        conn = db.get_connection()
+        cursor = conn.cursor()
+        
+        # Count candidates
+        cursor.execute('SELECT COUNT(*) FROM candidates')
+        total_candidates = cursor.fetchone()[0]
+        
+        # Count jobs
+        cursor.execute('SELECT COUNT(*) FROM job_descriptions')
+        total_jobs = cursor.fetchone()[0]
+        
+        # Count scheduled interviews
+        cursor.execute('SELECT COUNT(*) FROM interview_schedules WHERE status = "scheduled"')
+        scheduled_interviews = cursor.fetchone()[0]
+        
+        # Count messages sent
+        cursor.execute('SELECT COUNT(*) FROM messages')
+        messages_sent = cursor.fetchone()[0]
+        
+        # Get recent activity
+        cursor.execute('''
+            SELECT 'candidate' as type, name as title, created_at 
+            FROM candidates 
+            UNION ALL
+            SELECT 'job' as type, title, created_at 
+            FROM job_descriptions 
+            ORDER BY created_at DESC LIMIT 10
+        ''')
+        recent_activity = cursor.fetchall()
+        
+        conn.close()
+        
+        return {
+            "success": True,
+            "statistics": {
+                "total_candidates": total_candidates,
+                "total_jobs": total_jobs,
+                "scheduled_interviews": scheduled_interviews,
+                "messages_sent": messages_sent
+            },
+            "recent_activity": [
+                {
+                    "type": activity[0],
+                    "title": activity[1],
+                    "created_at": activity[2]
+                }
+                for activity in recent_activity
+            ]
+        }
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching dashboard data: {str(e)}")
+
+# Include the API router
+app.include_router(api_router)
+
+# Initialize some sample data on startup
+@app.on_event("startup")
+async def startup_event():
+    """Initialize the application with sample data"""
+    print("🚀 Starting Agentic AI Hiring Assistant...")
+    print("📊 Database initialized")
+    print("🤖 AI models loaded")
+    print("✅ Application ready!")
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000) 
