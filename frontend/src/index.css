@@ -1,0 +1,455 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    border-color: theme('colors.slate.200');
+  }
+  
+  body {
+    font-family: 'Inter', sans-serif;
+    background-color: theme('colors.slate.50');
+    color: theme('colors.slate.900');
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none transform hover:scale-105 active:scale-95;
+  }
+
+  .btn-primary {
+    @apply btn bg-gradient-to-r from-sky-600 to-sky-700 text-white hover:from-sky-700 hover:to-sky-800 focus:ring-sky-500 shadow-lg hover:shadow-xl;
+  }
+  
+  .btn-secondary {
+    @apply btn bg-slate-100 text-slate-700 hover:bg-slate-200 focus:ring-slate-500 border border-slate-200 hover:border-slate-300;
+  }
+
+  .btn-outline {
+    @apply btn border-2 border-sky-200 bg-white text-sky-700 hover:bg-sky-50 hover:border-sky-300 focus:ring-sky-500;
+  }
+
+  .btn-ghost {
+    @apply btn text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus:ring-slate-500;
+  }
+  
+  .card {
+    @apply bg-white rounded-2xl shadow-soft border border-slate-200/60 backdrop-blur-sm;
+  }
+
+  .card-elevated {
+    @apply card shadow-large hover:shadow-xl transition-shadow duration-300;
+  }
+
+  .card-header {
+    @apply px-6 py-5 border-b border-slate-200/60;
+  }
+
+  .card-body {
+    @apply px-6 py-5;
+  }
+
+  .card-footer {
+    @apply px-6 py-4 border-t border-slate-200/60 bg-slate-50/50 rounded-b-2xl;
+  }
+  
+  .input {
+    @apply block w-full rounded-xl border border-slate-300 px-4 py-3 text-sm placeholder-slate-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/20 transition-all duration-200 bg-white hover:border-slate-400;
+  }
+
+  .input-error {
+    @apply input border-red-300 focus:border-red-500 focus:ring-red-500/20;
+  }
+
+  .label {
+    @apply block text-sm font-semibold text-slate-700 mb-2;
+  }
+
+  .helper-text {
+    @apply text-xs text-slate-500 mt-1;
+  }
+  
+  .sidebar-nav {
+    @apply space-y-2;
+  }
+  
+  .sidebar-nav-section {
+    @apply mb-6;
+  }
+
+  .sidebar-nav-section-title {
+    @apply text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3 px-3;
+  }
+  
+  .sidebar-nav-item {
+    @apply flex items-center px-3 py-3 text-sm font-medium rounded-xl transition-all duration-200 ease-in-out relative;
+  }
+  
+  .sidebar-nav-item.active {
+    @apply bg-gradient-to-r from-sky-500 to-sky-600 text-white shadow-lg;
+  }
+
+  .sidebar-nav-item.active::before {
+    @apply content-[''] absolute left-0 top-0 bottom-0 w-1 bg-white rounded-r-full;
+  }
+  
+  .sidebar-nav-item:not(.active) {
+    @apply text-slate-600 hover:bg-slate-100 hover:text-slate-900 hover:scale-105;
+  }
+
+  .sidebar-nav-item:not(.active):hover {
+    @apply transform translate-x-1;
+  }
+  
+  .badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold;
+  }
+  
+  .badge-primary {
+    @apply badge bg-sky-100 text-sky-800 border border-sky-200;
+  }
+
+  .badge-success {
+    @apply badge bg-emerald-100 text-emerald-800 border border-emerald-200;
+  }
+
+  .badge-warning {
+    @apply badge bg-amber-100 text-amber-800 border border-amber-200;
+  }
+
+  .badge-error {
+    @apply badge bg-red-100 text-red-800 border border-red-200;
+  }
+
+  .badge-info {
+    @apply badge bg-sky-100 text-sky-800 border border-sky-200;
+  }
+
+  .badge-neutral {
+    @apply badge bg-slate-100 text-slate-700 border border-slate-200;
+  }
+  
+  .table-header {
+    @apply px-6 py-4 text-left text-xs font-bold text-slate-600 uppercase tracking-wider bg-slate-50/80;
+  }
+  
+  .table-cell {
+    @apply px-6 py-4 whitespace-nowrap text-sm text-slate-900;
+  }
+
+  .table-row {
+    @apply hover:bg-slate-50/50 transition-colors duration-150;
+  }
+
+  .table-row:nth-child(even) {
+    @apply bg-slate-50;
+  }
+  
+  .loading-spinner {
+    @apply animate-spin rounded-full border-2 border-slate-200 border-t-sky-600;
+  }
+
+  .skeleton {
+    @apply animate-pulse bg-slate-200 rounded;
+  }
+  
+  .dropdown-menu {
+    @apply absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-large py-2 z-50 border border-slate-200;
+  }
+  
+  .dropdown-item {
+    @apply block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition-colors duration-150;
+  }
+
+  .status-indicator {
+    @apply flex items-center space-x-2;
+  }
+
+  .status-dot {
+    @apply w-2 h-2 rounded-full;
+  }
+
+  .status-dot.online {
+    @apply bg-emerald-500 animate-pulse;
+  }
+
+  .status-dot.offline {
+    @apply bg-red-500;
+  }
+
+  .status-dot.warning {
+    @apply bg-amber-500;
+  }
+
+  /* Enhanced primary color utilities */
+  .bg-primary-50 { @apply bg-sky-50; }
+  .bg-primary-100 { @apply bg-sky-100; }
+  .bg-primary-500 { @apply bg-sky-500; }
+  .bg-primary-600 { @apply bg-sky-600; }
+  .bg-primary-700 { @apply bg-sky-700; }
+  .text-primary-100 { @apply text-sky-100; }
+  .text-primary-600 { @apply text-sky-600; }
+  .text-primary-700 { @apply text-sky-700; }
+
+  /* Enhanced success color utilities */
+  .bg-success-50 { @apply bg-emerald-50; }
+  .bg-success-100 { @apply bg-emerald-100; }
+  .bg-success-500 { @apply bg-emerald-500; }
+  .bg-success-600 { @apply bg-emerald-600; }
+  .text-success-500 { @apply text-emerald-500; }
+  .text-success-600 { @apply text-emerald-600; }
+  .text-success-700 { @apply text-emerald-700; }
+  .text-success-800 { @apply text-emerald-800; }
+
+  /* Enhanced warning color utilities */
+  .bg-warning-100 { @apply bg-amber-100; }
+  .bg-warning-500 { @apply bg-amber-500; }
+  .text-warning-500 { @apply text-amber-500; }
+  .text-warning-600 { @apply text-amber-600; }
+
+  /* Chart styling improvements */
+  .chart-container {
+    @apply p-6 bg-gradient-to-br from-white to-slate-50/50;
+  }
+
+  .chart-title {
+    @apply text-lg font-bold text-slate-900 mb-1;
+  }
+
+  .chart-subtitle {
+    @apply text-sm text-slate-600 mb-4;
+  }
+
+  /* Avatar utilities */
+  .avatar {
+    @apply rounded-full bg-gradient-to-br from-sky-400 to-sky-600 flex items-center justify-center text-white font-semibold;
+  }
+
+  .avatar-sm {
+    @apply avatar w-8 h-8 text-xs;
+  }
+
+  .avatar-md {
+    @apply avatar w-10 h-10 text-sm;
+  }
+
+  .avatar-lg {
+    @apply avatar w-12 h-12 text-base;
+  }
+
+  /* Form section styling */
+  .form-section {
+    @apply card mb-6;
+  }
+
+  .form-section-header {
+    @apply card-header;
+  }
+
+  .form-section-title {
+    @apply text-lg font-bold text-slate-900 mb-1;
+  }
+
+  .form-section-subtitle {
+    @apply text-sm text-slate-600;
+  }
+
+  .form-section-body {
+    @apply card-body space-y-4;
+  }
+
+  /* KPI Card styling */
+  .kpi-card {
+    @apply card-elevated p-6 relative overflow-hidden;
+  }
+
+  .kpi-card::before {
+    @apply content-[''] absolute top-0 left-0 w-full h-1 bg-gradient-to-r;
+  }
+
+  .kpi-card.primary::before {
+    @apply from-sky-500 to-sky-600;
+  }
+
+  .kpi-card.success::before {
+    @apply from-emerald-500 to-emerald-600;
+  }
+
+  .kpi-card.warning::before {
+    @apply from-amber-500 to-amber-600;
+  }
+
+  .kpi-card.info::before {
+    @apply from-sky-500 to-sky-600;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+  
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+  
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Enhanced shadow utilities */
+  .shadow-soft {
+    box-shadow: 0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04);
+  }
+
+  .shadow-large {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+
+  .shadow-glow {
+    box-shadow: 0 0 20px rgba(14, 165, 233, 0.15);
+  }
+
+  /* Gradient utilities */
+  .gradient-primary {
+    @apply bg-gradient-to-r from-sky-600 to-sky-700;
+  }
+
+  .gradient-success {
+    @apply bg-gradient-to-r from-emerald-600 to-emerald-700;
+  }
+
+  .gradient-warning {
+    @apply bg-gradient-to-r from-amber-600 to-amber-700;
+  }
+
+  /* Glass morphism effect */
+  .glass {
+    @apply bg-white/80 backdrop-blur-sm border border-white/20;
+  }
+
+  /* Hover lift effect */
+  .hover-lift {
+    @apply transition-transform duration-200 hover:-translate-y-1 hover:shadow-large;
+  }
+}
+
+/* Enhanced animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.animate-slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.3s ease-out;
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite linear;
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200px 100%;
+}
+
+/* Chart styling improvements */
+.recharts-wrapper {
+  /* Inter font is already applied globally via body */
+}
+
+.recharts-cartesian-axis-tick-value {
+  @apply text-slate-600 text-xs font-medium;
+}
+
+.recharts-legend-item-text {
+  @apply text-slate-700 font-medium;
+}
+
+.recharts-tooltip-wrapper {
+  @apply shadow-large rounded-xl border border-slate-200;
+}
+
+/* Toast styling */
+.react-hot-toast-enter {
+  animation: scaleIn 0.3s ease-out;
+}
+
+.react-hot-toast-exit {
+  animation: fadeOut 0.2s ease-in;
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+} 
