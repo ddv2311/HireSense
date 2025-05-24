@@ -16,6 +16,9 @@ from matcher import rag_matcher
 from scorer import mcp_scorer
 from scheduler import interview_scheduler
 from messenger import llm_messenger
+from analytics import recruitment_analytics
+from mcp_protocol import mcp, MCPRequest, MCPMessageType
+import uuid
 
 # Create FastAPI app
 app = FastAPI(
@@ -542,6 +545,119 @@ async def get_dashboard_data():
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching dashboard data: {str(e)}")
+
+# Advanced Analytics endpoints
+@api_router.get("/analytics/funnel")
+async def get_hiring_funnel_metrics(days: int = 30):
+    """Get comprehensive hiring funnel metrics"""
+    try:
+        metrics = recruitment_analytics.get_hiring_funnel_metrics(days)
+        return {
+            "success": True,
+            "metrics": metrics
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching funnel metrics: {str(e)}")
+
+@api_router.get("/analytics/bias")
+async def detect_bias(job_id: Optional[int] = None):
+    """Detect potential bias in hiring process"""
+    try:
+        bias_analysis = recruitment_analytics.detect_bias(job_id)
+        return {
+            "success": True,
+            "bias_analysis": bias_analysis
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error detecting bias: {str(e)}")
+
+@api_router.get("/analytics/predictions/{job_id}")
+async def get_performance_predictions(job_id: int):
+    """Get hiring performance predictions for a job"""
+    try:
+        predictions = recruitment_analytics.get_performance_predictions(job_id)
+        return {
+            "success": True,
+            "predictions": predictions
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error generating predictions: {str(e)}")
+
+@api_router.get("/analytics/insights")
+async def get_real_time_insights():
+    """Get real-time recruitment insights"""
+    try:
+        insights = recruitment_analytics.get_real_time_insights()
+        return {
+            "success": True,
+            "insights": insights
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching insights: {str(e)}")
+
+# Model Context Protocol endpoints
+@api_router.post("/mcp/score")
+async def mcp_score_candidate(candidate_id: int, job_id: int):
+    """Score candidate using Model Context Protocol"""
+    try:
+        # Get candidate and job data
+        candidate_data = db.get_candidate_by_id(candidate_id)
+        if not candidate_data:
+            raise HTTPException(status_code=404, detail="Candidate not found")
+        
+        # Initialize MCP context
+        context = mcp.initialize_context(job_id)
+        
+        # Create MCP request
+        request = MCPRequest(
+            message_type=MCPMessageType.SCORE_REQUEST,
+            context=context,
+            candidate_data=candidate_data,
+            timestamp=datetime.now(),
+            request_id=str(uuid.uuid4())
+        )
+        
+        # Process request
+        response = mcp.process_score_request(request)
+        
+        return {
+            "success": True,
+            "mcp_response": {
+                "request_id": response.request_id,
+                "score": response.score,
+                "confidence": response.confidence,
+                "reasoning": response.reasoning,
+                "context_factors": response.context_factors,
+                "model_version": response.model_version,
+                "timestamp": response.timestamp.isoformat()
+            }
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error processing MCP score: {str(e)}")
+
+@api_router.post("/mcp/feedback")
+async def record_mcp_feedback(request_id: str, actual_outcome: str, feedback_score: float):
+    """Record feedback for MCP continuous learning"""
+    try:
+        mcp.record_feedback(request_id, actual_outcome, feedback_score)
+        return {
+            "success": True,
+            "message": "Feedback recorded successfully"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error recording feedback: {str(e)}")
+
+@api_router.get("/mcp/stats")
+async def get_mcp_stats():
+    """Get MCP model statistics"""
+    try:
+        stats = mcp.get_model_stats()
+        return {
+            "success": True,
+            "stats": stats
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching MCP stats: {str(e)}")
 
 # Include the API router
 app.include_router(api_router)
