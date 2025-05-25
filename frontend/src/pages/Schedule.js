@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Clock, Plus, User, Video, X } from 'lucide-react';
+import { Clock, Plus, User, Video, X, Edit, Trash2 } from 'lucide-react';
 import api from '../api/config';
 import toast from 'react-hot-toast';
 
@@ -11,6 +11,8 @@ const Schedule = () => {
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingInterview, setEditingInterview] = useState(null);
   const [scheduleForm, setScheduleForm] = useState({
     candidate_id: '',
     job_id: '',
@@ -99,6 +101,73 @@ const Schedule = () => {
       }
     } catch (error) {
       toast.error('Failed to schedule interview');
+    }
+  };
+
+  const handleEditInterview = (interview) => {
+    setEditingInterview(interview);
+    setScheduleForm({
+      candidate_id: interview.candidate_id,
+      job_id: interview.job_id || '',
+      slot_id: '',
+      interviewer_name: interview.interviewer_name,
+      meeting_link: interview.meeting_link || ''
+    });
+    setShowEditModal(true);
+  };
+
+  const handleUpdateInterview = async (e) => {
+    e.preventDefault();
+    
+    if (!scheduleForm.slot_id) {
+      toast.error('Please select a new time slot');
+      return;
+    }
+
+    try {
+      const response = await api.put(`/schedule/${editingInterview.id}`, {
+        new_slot_id: parseInt(scheduleForm.slot_id),
+        interviewer_name: scheduleForm.interviewer_name,
+        meeting_link: scheduleForm.meeting_link
+      });
+      
+      if (response.data.success) {
+        toast.success('Interview updated successfully!');
+        setShowEditModal(false);
+        setEditingInterview(null);
+        setScheduleForm({
+          candidate_id: '',
+          job_id: '',
+          slot_id: '',
+          interviewer_name: '',
+          meeting_link: ''
+        });
+        fetchInterviews();
+        fetchAvailableSlots();
+      } else {
+        toast.error(response.data.error || 'Failed to update interview');
+      }
+    } catch (error) {
+      toast.error('Failed to update interview');
+      console.error('Error updating interview:', error);
+    }
+  };
+
+  const handleCancelInterview = async (interview) => {
+    if (window.confirm(`Are you sure you want to cancel the interview with ${interview.candidate_name}? This action cannot be undone.`)) {
+      try {
+        const response = await api.delete(`/schedule/${interview.id}`);
+        if (response.data.success) {
+          toast.success('Interview cancelled successfully');
+          fetchInterviews();
+          fetchAvailableSlots();
+        } else {
+          toast.error(response.data.error || 'Failed to cancel interview');
+        }
+      } catch (error) {
+        toast.error('Failed to cancel interview');
+        console.error('Error cancelling interview:', error);
+      }
     }
   };
 
@@ -286,6 +355,86 @@ const Schedule = () => {
         </div>
       )}
 
+      {/* Edit Interview Modal */}
+      {showEditModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold">Edit Interview</h2>
+              <button 
+                onClick={() => setShowEditModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            
+            <form onSubmit={handleUpdateInterview} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Time Slot *
+                </label>
+                <select
+                  value={scheduleForm.slot_id}
+                  onChange={(e) => setScheduleForm({...scheduleForm, slot_id: e.target.value})}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  required
+                >
+                  <option value="">Select a new time slot</option>
+                  {availableSlots.filter(slot => !slot.is_booked).map(slot => (
+                    <option key={slot.id} value={slot.id}>
+                      {new Date(slot.start_time).toLocaleString()} - {slot.interviewer_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Interviewer Name
+                </label>
+                <input
+                  type="text"
+                  value={scheduleForm.interviewer_name}
+                  onChange={(e) => setScheduleForm({...scheduleForm, interviewer_name: e.target.value})}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Enter new interviewer name"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Meeting Link
+                </label>
+                <input
+                  type="url"
+                  value={scheduleForm.meeting_link}
+                  onChange={(e) => setScheduleForm({...scheduleForm, meeting_link: e.target.value})}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="https://meet.google.com/..."
+                />
+              </div>
+
+              <div className="flex space-x-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowEditModal(false)}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  Update
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           <div className="bg-white rounded-lg shadow">
@@ -351,10 +500,16 @@ const Schedule = () => {
                         </div>
                       </div>
                       <div className="flex space-x-2">
-                        <button className="text-blue-600 hover:text-blue-900 text-sm">
+                        <button 
+                          onClick={() => handleEditInterview(interview)}
+                          className="text-blue-600 hover:text-blue-900 text-sm"
+                        >
                           Edit
                         </button>
-                        <button className="text-red-600 hover:text-red-900 text-sm">
+                        <button 
+                          onClick={() => handleCancelInterview(interview)}
+                          className="text-red-600 hover:text-red-900 text-sm"
+                        >
                           Cancel
                         </button>
                       </div>

@@ -57,7 +57,7 @@ class JobDescriptionCreate(BaseModel):
 
 class ScheduleRequest(BaseModel):
     candidate_id: int
-    job_id: int
+    job_id: Optional[int] = None
     slot_id: int
     interviewer_name: str
     meeting_link: Optional[str] = ""
@@ -98,6 +98,11 @@ class JobUpdate(BaseModel):
     description: Optional[str] = None
     requirements: Optional[str] = None
     skills: Optional[str] = None
+
+class InterviewUpdate(BaseModel):
+    new_slot_id: int
+    interviewer_name: Optional[str] = None
+    meeting_link: Optional[str] = None
 
 # Root endpoint
 @app.get("/")
@@ -533,6 +538,62 @@ async def schedule_interview(schedule_request: ScheduleRequest):
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error scheduling interview: {str(e)}")
+
+@api_router.put("/schedule/{interview_id}")
+async def update_interview(interview_id: int, update_data: InterviewUpdate):
+    """Update/reschedule an interview"""
+    try:
+        new_slot_id = update_data.new_slot_id
+        interviewer_name = update_data.interviewer_name
+        meeting_link = update_data.meeting_link or ''
+        
+        # Use the reschedule method from interview_scheduler
+        result = interview_scheduler.reschedule_interview(interview_id, new_slot_id)
+        
+        if result['success']:
+            # Update additional fields if provided
+            if interviewer_name or meeting_link:
+                conn = db.get_connection()
+                cursor = conn.cursor()
+                
+                update_fields = []
+                params = []
+                
+                if interviewer_name:
+                    update_fields.append("interviewer_name = ?")
+                    params.append(interviewer_name)
+                
+                if meeting_link:
+                    update_fields.append("meeting_link = ?")
+                    params.append(meeting_link)
+                
+                if update_fields:
+                    params.append(interview_id)
+                    cursor.execute(f'''
+                        UPDATE interview_schedules 
+                        SET {", ".join(update_fields)}
+                        WHERE id = ?
+                    ''', params)
+                    conn.commit()
+                
+                conn.close()
+        
+        return result
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error updating interview: {str(e)}")
+
+@api_router.delete("/schedule/{interview_id}")
+async def cancel_interview(interview_id: int):
+    """Cancel an interview"""
+    try:
+        result = interview_scheduler.cancel_interview(interview_id)
+        return result
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error cancelling interview: {str(e)}")
 
 @api_router.get("/schedule")
 async def get_interview_schedule(

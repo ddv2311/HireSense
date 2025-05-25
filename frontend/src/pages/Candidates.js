@@ -149,21 +149,29 @@ const Candidates = () => {
 
   const handleScheduleSubmit = async (scheduleData) => {
     try {
-      const response = await api.post('/schedule', {
+      console.log('Received schedule data in Candidates:', scheduleData);
+      console.log('Selected job:', selectedJob);
+      
+      const requestData = {
         candidate_id: selectedCandidate.id,
-        job_id: selectedJob || scheduleData.job_id,
+        job_id: scheduleData.job_id || selectedJob ? parseInt(scheduleData.job_id || selectedJob) : null,
         slot_id: scheduleData.slot_id,
         interviewer_name: scheduleData.interviewer_name,
         meeting_link: scheduleData.meeting_link
-      });
+      };
+      
+      console.log('Sending schedule request:', requestData);
+      const response = await api.post('/schedule', requestData);
+      console.log('Schedule API response:', response.data);
       
       if (response.data.success) {
         toast.success('Interview scheduled successfully');
         setShowScheduleModal(false);
       }
     } catch (error) {
-      toast.error('Failed to schedule interview');
       console.error('Error scheduling interview:', error);
+      console.error('Error details:', error.response?.data);
+      toast.error('Failed to schedule interview');
     }
   };
 

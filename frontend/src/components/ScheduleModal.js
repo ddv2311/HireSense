@@ -61,15 +61,28 @@ const ScheduleModal = ({ candidate, isOpen, onClose, onSchedule, selectedJobId }
   };
 
   const formatDateTime = (dateTimeString) => {
-    const date = new Date(dateTimeString);
-    return date.toLocaleString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    try {
+      const date = new Date(dateTimeString);
+      
+      // Check if date is valid
+      if (isNaN(date.getTime())) {
+        console.error('Invalid date string:', dateTimeString);
+        return 'Invalid Date';
+      }
+      
+      return date.toLocaleString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      });
+    } catch (error) {
+      console.error('Error formatting date:', error, 'Input:', dateTimeString);
+      return 'Invalid Date';
+    }
   };
 
   if (!isOpen || !candidate) return null;
@@ -131,7 +144,7 @@ const ScheduleModal = ({ candidate, isOpen, onClose, onSchedule, selectedJobId }
                 <option value="">Select a time slot</option>
                 {availableSlots.map((slot) => (
                   <option key={slot.id} value={slot.id}>
-                    {formatDateTime(slot.slot_datetime)} - {slot.interviewer_name}
+                    {formatDateTime(slot.start_time)} - {slot.interviewer_name}
                   </option>
                 ))}
               </select>
