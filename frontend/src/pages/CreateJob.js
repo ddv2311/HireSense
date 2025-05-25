@@ -124,7 +124,7 @@ const CreateJob = () => {
         /* Preview Mode */
         <div className="space-y-6">
           <div className="card-elevated">
-            <div className="card-header border-l-4 border-indigo-500">
+            <div className="card-header border-l-4 border-sky-500">
               <h2 className="text-xl font-bold text-slate-900">Job Preview</h2>
               <p className="text-sm text-slate-600">How your job posting will appear to candidates</p>
             </div>
@@ -191,14 +191,9 @@ const CreateJob = () => {
               {/* Basic Information Section */}
               <div className="form-section">
                 <div className="form-section-header">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center">
-                      <Briefcase className="w-5 h-5 text-indigo-600" />
-                    </div>
-                    <div>
-                      <h2 className="form-section-title">Basic Information</h2>
-                      <p className="form-section-subtitle">Essential details about the position</p>
-                    </div>
+                  <div>
+                    <h2 className="form-section-title">Basic Information</h2>
+                    <p className="form-section-subtitle">Essential details about the position</p>
                   </div>
                 </div>
                 
@@ -296,14 +291,9 @@ const CreateJob = () => {
               {/* Job Details Section */}
               <div className="form-section">
                 <div className="form-section-header">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
-                      <FileText className="w-5 h-5 text-emerald-600" />
-                    </div>
-                    <div>
-                      <h2 className="form-section-title">Job Details</h2>
-                      <p className="form-section-subtitle">Detailed description and requirements</p>
-                    </div>
+                  <div>
+                    <h2 className="form-section-title">Job Details</h2>
+                    <p className="form-section-subtitle">Detailed description and requirements</p>
                   </div>
                 </div>
                 
@@ -353,14 +343,9 @@ const CreateJob = () => {
               {/* Upload Section */}
               <div className="form-section">
                 <div className="form-section-header">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center">
-                      <Upload className="w-5 h-5 text-amber-600" />
-                    </div>
-                    <div>
-                      <h2 className="form-section-title">Upload Job Description</h2>
-                      <p className="form-section-subtitle">Optional: Upload existing JD file</p>
-                    </div>
+                  <div>
+                    <h2 className="form-section-title">Upload Job Description</h2>
+                    <p className="form-section-subtitle">Optional: Upload existing JD file</p>
                   </div>
                 </div>
                 
@@ -370,8 +355,8 @@ const CreateJob = () => {
                       {...getRootProps()}
                       className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all duration-200 ${
                         isDragActive
-                          ? 'border-indigo-400 bg-indigo-50'
-                          : 'border-slate-300 hover:border-indigo-400 hover:bg-slate-50'
+                          ? 'border-sky-400 bg-sky-50'
+                          : 'border-slate-300 hover:border-sky-400 hover:bg-slate-50'
                       }`}
                     >
                       <input {...getInputProps()} />

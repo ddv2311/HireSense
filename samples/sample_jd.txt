@@ -1,0 +1,59 @@
+Senior Software Engineer - Full Stack Development
+
+We are looking for a Senior Software Engineer to join our dynamic team and help build the next generation of our platform.
+
+Job Description:
+We are seeking an experienced Senior Software Engineer with expertise in full-stack development to join our growing engineering team. You will be responsible for designing, developing, and maintaining scalable web applications using modern technologies.
+
+Key Responsibilities:
+- Design and develop robust, scalable web applications
+- Collaborate with cross-functional teams to define and implement new features
+- Write clean, maintainable, and well-documented code
+- Participate in code reviews and mentor junior developers
+- Optimize application performance and ensure high availability
+- Stay up-to-date with emerging technologies and industry best practices
+
+Required Skills:
+- Python
+- JavaScript
+- React
+- Node.js
+- SQL
+- PostgreSQL
+- Docker
+- AWS
+- Git
+- REST API
+- GraphQL
+- Agile
+- Scrum
+
+Requirements:
+- Bachelor's degree in Computer Science or related field
+- 5+ years of experience in software development
+- Strong experience with Python and JavaScript
+- Proficiency in React and Node.js
+- Experience with relational databases (PostgreSQL preferred)
+- Knowledge of cloud platforms (AWS, Azure, or GCP)
+- Experience with containerization (Docker, Kubernetes)
+- Strong understanding of software engineering principles
+- Excellent problem-solving and communication skills
+- Experience with Agile/Scrum methodologies
+
+Nice to Have:
+- Master's degree in Computer Science
+- Experience with microservices architecture
+- Knowledge of machine learning frameworks
+- Experience with CI/CD pipelines
+- Open source contributions
+
+What We Offer:
+- Competitive salary and equity package
+- Comprehensive health, dental, and vision insurance
+- Flexible work arrangements
+- Professional development opportunities
+- Collaborative and innovative work environment
+
+Location: San Francisco, CA (Remote options available)
+Employment Type: Full-time
+Experience Level: Senior (5+ years) 

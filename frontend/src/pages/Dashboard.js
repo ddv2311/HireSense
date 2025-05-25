@@ -13,7 +13,7 @@ import {
   Plus,
   ArrowRight,
   AlertCircle,
-  Zap,
+  Building2,
   Target,
   Activity,
   Award,
@@ -162,16 +162,11 @@ const Dashboard = () => {
           <div className="card-body relative z-10">
             <div className="flex items-center justify-between">
               <div className="space-y-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
-                    <Zap className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h1 className="text-3xl font-bold mb-2">Welcome to HireSense</h1>
-                    <p className="text-sky-100 text-lg">
-                      Streamline your hiring process with intelligent automation and insights
-                    </p>
-                  </div>
+                <div>
+                  <h1 className="text-3xl font-bold mb-2">Welcome to HireSense</h1>
+                  <p className="text-sky-100 text-lg">
+                    Streamline your hiring process with intelligent automation and insights
+                  </p>
                 </div>
                 
                 <div className="flex items-center space-x-6 text-sm">
@@ -238,14 +233,9 @@ const Dashboard = () => {
         {/* Monthly Trends Chart */}
         <div className="card-elevated">
           <div className="card-header border-l-4 border-sky-500">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="chart-title">Monthly Hiring Trends</h3>
-                <p className="chart-subtitle">Candidates, interviews, and successful hires over time</p>
-              </div>
-              <div className="w-10 h-10 bg-sky-100 rounded-xl flex items-center justify-center">
-                <Activity className="w-5 h-5 text-sky-600" />
-              </div>
+            <div>
+              <h3 className="chart-title">Monthly Hiring Trends</h3>
+              <p className="chart-subtitle">Candidates, interviews, and successful hires over time</p>
             </div>
           </div>
           <div className="chart-container">
@@ -280,14 +270,9 @@ const Dashboard = () => {
         {/* Candidate Score Distribution */}
         <div className="card-elevated">
           <div className="card-header border-l-4 border-emerald-500">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="chart-title">AI Matching Score Distribution</h3>
-                <p className="chart-subtitle">Candidate performance breakdown by AI scoring</p>
-              </div>
-              <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
-                <Target className="w-5 h-5 text-emerald-600" />
-              </div>
+            <div>
+              <h3 className="chart-title">AI Matching Score Distribution</h3>
+              <p className="chart-subtitle">Candidate performance breakdown by AI scoring</p>
             </div>
           </div>
           <div className="chart-container">
@@ -406,14 +391,9 @@ const Dashboard = () => {
                 to="/upload-resume" 
                 className="group flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl hover:from-blue-100 hover:to-blue-200 transition-all duration-200 hover-lift"
               >
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Users className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <span className="text-sm font-semibold text-slate-900">Upload New Resume</span>
-                    <p className="text-xs text-slate-600">Add candidates to pipeline</p>
-                  </div>
+                <div>
+                  <span className="text-sm font-semibold text-slate-900">Upload New Resume</span>
+                  <p className="text-xs text-slate-600">Add candidates to pipeline</p>
                 </div>
                 <ArrowRight className="w-5 h-5 text-slate-400 group-hover:text-slate-600 group-hover:translate-x-1 transition-all" />
               </Link>
@@ -422,14 +402,9 @@ const Dashboard = () => {
                 to="/jobs/create" 
                 className="group flex items-center justify-between p-4 bg-gradient-to-r from-emerald-50 to-emerald-100 rounded-xl hover:from-emerald-100 hover:to-emerald-200 transition-all duration-200 hover-lift"
               >
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <FileText className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <span className="text-sm font-semibold text-slate-900">Create Job Posting</span>
-                    <p className="text-xs text-slate-600">Start new hiring process</p>
-                  </div>
+                <div>
+                  <span className="text-sm font-semibold text-slate-900">Create Job Posting</span>
+                  <p className="text-xs text-slate-600">Start new hiring process</p>
                 </div>
                 <ArrowRight className="w-5 h-5 text-slate-400 group-hover:text-slate-600 group-hover:translate-x-1 transition-all" />
               </Link>
@@ -438,14 +413,9 @@ const Dashboard = () => {
                 to="/schedule" 
                 className="group flex items-center justify-between p-4 bg-gradient-to-r from-amber-50 to-amber-100 rounded-xl hover:from-amber-100 hover:to-amber-200 transition-all duration-200 hover-lift"
               >
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-amber-500 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Calendar className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <span className="text-sm font-semibold text-slate-900">Schedule Interviews</span>
-                    <p className="text-xs text-slate-600">Manage interview calendar</p>
-                  </div>
+                <div>
+                  <span className="text-sm font-semibold text-slate-900">Schedule Interviews</span>
+                  <p className="text-xs text-slate-600">Manage interview calendar</p>
                 </div>
                 <ArrowRight className="w-5 h-5 text-slate-400 group-hover:text-slate-600 group-hover:translate-x-1 transition-all" />
               </Link>
@@ -454,14 +424,9 @@ const Dashboard = () => {
                 to="/analytics" 
                 className="group flex items-center justify-between p-4 bg-gradient-to-r from-sky-50 to-sky-100 rounded-xl hover:from-sky-100 hover:to-sky-200 transition-all duration-200 hover-lift"
               >
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-sky-500 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Award className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <span className="text-sm font-semibold text-slate-900">View Analytics</span>
-                    <p className="text-xs text-slate-600">Insights and performance</p>
-                  </div>
+                <div>
+                  <span className="text-sm font-semibold text-slate-900">View Analytics</span>
+                  <p className="text-xs text-slate-600">Insights and performance</p>
                 </div>
                 <ArrowRight className="w-5 h-5 text-slate-400 group-hover:text-slate-600 group-hover:translate-x-1 transition-all" />
               </Link>
@@ -473,14 +438,9 @@ const Dashboard = () => {
       {/* Enhanced System Status */}
       <div className="card-elevated">
         <div className="card-header border-l-4 border-sky-500">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-sky-100 rounded-xl flex items-center justify-center">
-              <Shield className="w-5 h-5 text-sky-600" />
-            </div>
-            <div>
-              <h3 className="text-lg font-bold text-slate-900">Service Health</h3>
-              <p className="text-sm text-slate-600">Real-time system status monitoring</p>
-            </div>
+          <div>
+            <h3 className="text-lg font-bold text-slate-900">Service Health</h3>
+            <p className="text-sm text-slate-600">Real-time system status monitoring</p>
           </div>
         </div>
         <div className="card-body">

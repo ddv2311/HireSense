@@ -1,0 +1,382 @@
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+hiring_assistant.db
+database/
+db/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# PEP 582
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Logs
+logs
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# nyc test coverage
+.nyc_output
+
+# Grunt intermediate storage
+.grunt
+
+# Bower dependency directory
+bower_components
+
+# node-waf configuration
+.lock-wscript
+
+# Compiled binary addons
+build/Release
+
+# Dependency directories
+jspm_packages/
+
+# TypeScript v1 declaration files
+typings/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variables file
+.env.test
+
+# parcel-bundler cache
+.cache
+.parcel-cache
+
+# Next.js build output
+.next
+
+# Nuxt.js build / generate output
+.nuxt
+dist
+
+# Gatsby files
+.cache/
+public
+
+# Storybook build outputs
+.out
+.storybook-out
+
+# Temporary folders
+tmp/
+temp/
+
+# Editor directories and files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Uploaded files
+uploads/
+uploads/resumes/
+uploads/job_descriptions/
+uploads/videos/
+
+# Model files (if using local models)
+models/
+*.bin
+*.safetensors
+*.onnx
+
+# API keys and secrets
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+secrets.json
+config.json
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Compressed files
+*.zip
+*.tar.gz
+*.rar
+
+# IDE specific files
+.vscode/settings.json
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# MacOS
+.AppleDouble
+.LSOverride
+
+# Windows
+desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+
+# Application specific
+*.session
+*.cache
+.pytest_cache/
+.coverage
+htmlcov/
+
+# FastAPI specific
+.pytest_cache/
+test_*.py.coverage
+
+# React build
+frontend/build/
+frontend/dist/
+
+# Package lock files (optional - some prefer to commit these)
+# package-lock.json
+# yarn.lock
+
+# ===================================
+# PROJECT SPECIFIC EXCLUSIONS
+# ===================================
+
+# Test and Debug Scripts
+demo_complete_system.py
+test_*.py
+debug_*.py
+check_*.py
+create_sample_data.py
+simple_test.py
+demo_resume.py
+
+# Database files (local development)
+hiring_assistant.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Sample/Test data files (keep sample_resume.txt and samples/ folder)
+# Exclude individual test files but keep the samples directory
+test_resume_*.txt
+test_jd_*.txt
+
+# Temporary files
+*.tmp
+*.temp
+
+# Development artifacts
+.development/
+.testing/
+debug/
+logs/
+
+# AI Model cache (if any)
+.transformers_cache/
+.sentence_transformers/
+
+# Local configuration overrides
+config_local.py
+settings_local.py
+
+# Development databases
+dev.db
+test.db
+local.db
+
+# Jupyter notebooks (if any)
+*.ipynb
+
+# Development scripts
+run_dev.py
+setup_dev.py
+migrate_*.py
+
+# Performance profiling
+*.prof
+*.profile
+
+# Memory dumps
+*.dump
+*.dmp
+
+# Local uploads during development
+uploads/
+temp_uploads/
+test_uploads/
+
+# IDE workspace files
+*.code-workspace
+.vscode/launch.json
+.vscode/tasks.json
+
+# OS specific
+.fuse_hidden*
+.nfs*
+
+# Development environment
+.dev/
+.local/ 

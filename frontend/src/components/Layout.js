@@ -9,11 +9,11 @@ import {
   Upload,
   Menu,
   X,
-  Bot,
+  Building2,
   Settings,
   Bell,
   BarChart3,
-  Zap,
+  Target,
   User,
   LogOut,
   HelpCircle,
@@ -82,11 +82,8 @@ const Layout = ({ children }) => {
         {/* Sidebar Header */}
         <div className="flex items-center justify-between h-16 px-6 border-b border-slate-200/60 bg-gradient-to-r from-sky-600 to-sky-700 flex-shrink-0">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-              <Bot className="w-6 h-6 text-white" />
-            </div>
             <div>
-              <span className="text-lg font-bold text-white">
+              <span className="text-xl font-bold text-white">
                 HireSense
               </span>
               <div className="text-xs text-sky-100 font-medium">
@@ -199,9 +196,6 @@ const Layout = ({ children }) => {
               </button>
               
               <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-gradient-to-br from-sky-500 to-sky-600 rounded-lg flex items-center justify-center">
-                  <Zap className="w-4 h-4 text-white" />
-                </div>
                 <div>
                   <h1 className="text-xl font-bold text-slate-900">
                     {getPageTitle()}

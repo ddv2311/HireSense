@@ -1,0 +1,58 @@
+John Doe
+Software Engineer
+
+Contact Information:
+Email: john.doe@email.com
+Phone: (555) 123-4567
+LinkedIn: linkedin.com/in/johndoe
+GitHub: github.com/johndoe
+
+Summary:
+Experienced software engineer with 5 years of experience in full-stack development. 
+Proficient in Python, JavaScript, React, Node.js, and cloud technologies.
+
+Experience:
+Senior Software Engineer | Tech Corp | 2022-Present
+- Led development of microservices architecture using Python and Docker
+- Built responsive web applications using React and TypeScript
+- Implemented CI/CD pipelines and automated testing
+- Mentored junior developers and conducted code reviews
+
+Software Engineer | StartupXYZ | 2020-2022
+- Developed REST APIs using Python Flask and FastAPI
+- Created database schemas and optimized SQL queries
+- Collaborated with cross-functional teams in Agile environment
+- Implemented authentication and authorization systems
+
+Junior Developer | WebSolutions | 2019-2020
+- Built frontend components using HTML, CSS, and JavaScript
+- Integrated third-party APIs and payment systems
+- Participated in daily standups and sprint planning
+- Fixed bugs and implemented feature requests
+
+Education:
+Bachelor of Science in Computer Science
+University of Technology | 2015-2019
+GPA: 3.8/4.0
+
+Skills:
+Programming Languages: Python, JavaScript, TypeScript, Java, C++
+Web Technologies: React, Node.js, HTML5, CSS3, REST APIs
+Databases: PostgreSQL, MongoDB, Redis
+Cloud Platforms: AWS, Docker, Kubernetes
+Tools: Git, Jenkins, JIRA, VS Code
+
+Certifications:
+- AWS Certified Developer Associate (2023)
+- Certified Scrum Master (2022)
+
+Projects:
+E-commerce Platform (2023)
+- Built full-stack e-commerce application using React and Python
+- Implemented payment processing and inventory management
+- Deployed on AWS with auto-scaling capabilities
+
+Task Management App (2022)
+- Created collaborative task management tool
+- Used React frontend with Node.js backend
+- Integrated real-time notifications using WebSockets 
