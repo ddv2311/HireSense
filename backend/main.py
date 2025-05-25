@@ -64,7 +64,7 @@ class ScheduleRequest(BaseModel):
 
 class MessageRequest(BaseModel):
     candidate_id: int
-    job_id: int
+    job_id: Optional[int] = None
     message_type: str
     additional_context: Optional[Dict] = None
 

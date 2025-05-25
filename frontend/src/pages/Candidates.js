@@ -3,6 +3,8 @@ import { Search, Eye, MessageSquare, Calendar, Star, Filter, Download, MoreVerti
 import api from '../api/config';
 import toast from 'react-hot-toast';
 import CandidateModal from '../components/CandidateModal';
+import MessageModal from '../components/MessageModal';
+import ScheduleModal from '../components/ScheduleModal';
 
 const Candidates = () => {
   const [candidates, setCandidates] = useState([]);
@@ -12,6 +14,8 @@ const Candidates = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCandidate, setSelectedCandidate] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showMessageModal, setShowMessageModal] = useState(false);
+  const [showScheduleModal, setShowScheduleModal] = useState(false);
 
   useEffect(() => {
     fetchJobs();
@@ -115,6 +119,53 @@ const Candidates = () => {
       skill.toLowerCase().includes(searchTerm.toLowerCase())
     ))
   );
+
+  const handleSendMessage = (candidate) => {
+    setSelectedCandidate(candidate);
+    setShowMessageModal(true);
+  };
+
+  const handleScheduleInterview = (candidate) => {
+    setSelectedCandidate(candidate);
+    setShowScheduleModal(true);
+  };
+
+  const handleSendMessageSubmit = async (messageData) => {
+    try {
+      console.log('Received message data in Candidates:', messageData);
+      const response = await api.post('/send-message', messageData);
+      console.log('API response:', response.data);
+      
+      if (response.data.success) {
+        toast.success('Message sent successfully');
+        setShowMessageModal(false);
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      console.error('Error details:', error.response?.data);
+      toast.error('Failed to send message');
+    }
+  };
+
+  const handleScheduleSubmit = async (scheduleData) => {
+    try {
+      const response = await api.post('/schedule', {
+        candidate_id: selectedCandidate.id,
+        job_id: selectedJob || scheduleData.job_id,
+        slot_id: scheduleData.slot_id,
+        interviewer_name: scheduleData.interviewer_name,
+        meeting_link: scheduleData.meeting_link
+      });
+      
+      if (response.data.success) {
+        toast.success('Interview scheduled successfully');
+        setShowScheduleModal(false);
+      }
+    } catch (error) {
+      toast.error('Failed to schedule interview');
+      console.error('Error scheduling interview:', error);
+    }
+  };
 
   if (loading) {
     return (
@@ -320,12 +371,14 @@ const Candidates = () => {
                         <Eye className="h-4 w-4" />
                       </button>
                       <button 
+                        onClick={() => handleSendMessage(candidate)}
                         className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all duration-200 group-hover:scale-110"
                         title="Send message"
                       >
                         <MessageSquare className="h-4 w-4" />
                       </button>
                       <button 
+                        onClick={() => handleScheduleInterview(candidate)}
                         className="p-2 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-all duration-200 group-hover:scale-110"
                         title="Schedule interview"
                       >
@@ -404,6 +457,30 @@ const Candidates = () => {
           setSelectedCandidate(null);
         }}
         onUpdate={handleUpdateCandidate}
+      />
+
+      {/* Message Modal */}
+      <MessageModal
+        candidate={selectedCandidate}
+        isOpen={showMessageModal}
+        onClose={() => {
+          setShowMessageModal(false);
+          setSelectedCandidate(null);
+        }}
+        onSend={handleSendMessageSubmit}
+        selectedJobId={selectedJob}
+      />
+
+      {/* Schedule Modal */}
+      <ScheduleModal
+        candidate={selectedCandidate}
+        isOpen={showScheduleModal}
+        onClose={() => {
+          setShowScheduleModal(false);
+          setSelectedCandidate(null);
+        }}
+        onSchedule={handleScheduleSubmit}
+        selectedJobId={selectedJob}
       />
     </div>
   );
