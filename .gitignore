@@ -1,16 +1,18 @@
-# Database files
-*.db
-*.sqlite
-*.sqlite3
-hiring_assistant.db
-database/
-db/
+# ===================================
+# HIRESENSE AI - COMPREHENSIVE .GITIGNORE
+# ===================================
 
-# Python
+# ===================================
+# PYTHON / BACKEND
+# ===================================
+
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
+
+# Distribution / packaging
 .Python
 build/
 develop-eggs/
@@ -107,6 +109,10 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
 # Spyder project settings
 .spyderproject
@@ -126,16 +132,23 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# Node.js
+# ===================================
+# NODE.JS / FRONTEND
+# ===================================
+
+# Dependencies
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
 lerna-debug.log*
 
-# Logs
-logs
-*.log
+# Production builds
+build/
+dist/
+.next/
+out/
 
 # Runtime data
 pids
@@ -165,9 +178,6 @@ build/Release
 # Dependency directories
 jspm_packages/
 
-# TypeScript v1 declaration files
-typings/
-
 # TypeScript cache
 *.tsbuildinfo
 
@@ -176,6 +186,9 @@ typings/
 
 # Optional eslint cache
 .eslintcache
+
+# Optional stylelint cache
+.stylelintcache
 
 # Microbundle cache
 .rpt2_cache/
@@ -192,9 +205,6 @@ typings/
 # Yarn Integrity file
 .yarn-integrity
 
-# dotenv environment variables file
-.env.test
-
 # parcel-bundler cache
 .cache
 .parcel-cache
@@ -204,156 +214,193 @@ typings/
 
 # Nuxt.js build / generate output
 .nuxt
-dist
 
 # Gatsby files
 .cache/
 public
 
+# Vuepress build output
+.vuepress/dist
+
+# Serverless directories
+.serverless/
+
+# FuseBox cache
+.fusebox/
+
+# DynamoDB Local files
+.dynamodb/
+
+# TernJS port file
+.tern-port
+
+# Stores VSCode versions used for testing VSCode extensions
+.vscode-test
+
+# yarn v2
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
 # Storybook build outputs
 .out
 .storybook-out
+storybook-static
 
-# Temporary folders
-tmp/
-temp/
+# Bundle analyzer
+bundle-analyzer-report.html
 
-# Editor directories and files
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
+# PWA files
+sw.js
+workbox-*.js
 
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
+# Sentry
+.sentryclirc
 
-# Uploaded files
-uploads/
-uploads/resumes/
-uploads/job_descriptions/
-uploads/videos/
+# Webpack Bundle Analyzer
+webpack-bundle-analyzer-report.html
 
-# Model files (if using local models)
-models/
-*.bin
-*.safetensors
-*.onnx
-
-# API keys and secrets
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-secrets.json
-config.json
-
-# Backup files
-*.bak
-*.backup
-*.old
-
-# Compressed files
-*.zip
-*.tar.gz
-*.rar
-
-# IDE specific files
-.vscode/settings.json
-.idea/
-*.sublime-project
-*.sublime-workspace
-
-# MacOS
-.AppleDouble
-.LSOverride
-
-# Windows
-desktop.ini
-$RECYCLE.BIN/
-
-# Linux
-*~
-
-# Application specific
-*.session
-*.cache
-.pytest_cache/
-.coverage
-htmlcov/
-
-# FastAPI specific
-.pytest_cache/
-test_*.py.coverage
-
-# React build
-frontend/build/
-frontend/dist/
-
-# Package lock files (optional - some prefer to commit these)
-# package-lock.json
-# yarn.lock
+# Auto-generated files
+src/serviceWorker.js
+public/sw.js
+public/workbox-*.js
 
 # ===================================
-# PROJECT SPECIFIC EXCLUSIONS
+# DATABASE FILES
 # ===================================
 
-# Test and Debug Scripts
-demo_complete_system.py
-test_*.py
-debug_*.py
-check_*.py
-create_sample_data.py
-simple_test.py
-demo_resume.py
-
-# Database files (local development)
-hiring_assistant.db
+# SQLite databases
+*.db
+*.sqlite
+*.sqlite3
 *.db-journal
 *.db-wal
 *.db-shm
-
-# Sample/Test data files (keep sample_resume.txt and samples/ folder)
-# Exclude individual test files but keep the samples directory
-test_resume_*.txt
-test_jd_*.txt
-
-# Temporary files
-*.tmp
-*.temp
-
-# Development artifacts
-.development/
-.testing/
-debug/
-logs/
-
-# AI Model cache (if any)
-.transformers_cache/
-.sentence_transformers/
-
-# Local configuration overrides
-config_local.py
-settings_local.py
+hiring_assistant.db
+database/
+db/
 
 # Development databases
 dev.db
 test.db
 local.db
 
-# Jupyter notebooks (if any)
-*.ipynb
+# ===================================
+# AI/ML MODELS & CACHE
+# ===================================
 
-# Development scripts
-run_dev.py
-setup_dev.py
-migrate_*.py
+# Model files
+models/
+*.bin
+*.safetensors
+*.onnx
+*.pkl
+*.joblib
+*.h5
+*.hdf5
+*.pb
+
+# AI Model cache
+.transformers_cache/
+.sentence_transformers/
+.huggingface/
+.cache/huggingface/
+.cache/torch/
+.torch/
+
+# TensorFlow
+*.ckpt
+*.ckpt.*
+checkpoint
+saved_model/
+
+# PyTorch
+*.pth
+*.pt
+
+# Scikit-learn
+*.pkl
+
+# ===================================
+# FILE UPLOADS & MEDIA
+# ===================================
+
+# Uploaded files
+uploads/
+uploads/resumes/
+uploads/job_descriptions/
+uploads/videos/
+uploads/code_samples/
+temp_uploads/
+test_uploads/
+
+# Media files
+*.mp4
+*.avi
+*.mov
+*.wmv
+*.flv
+*.webm
+*.mkv
+*.m4v
+
+# Audio files
+*.mp3
+*.wav
+*.flac
+*.aac
+*.ogg
+*.wma
+
+# Image files (if not needed for the app)
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.tiff
+*.svg
+*.ico
+*.webp
+
+# Document files (uploaded content)
+*.pdf
+*.doc
+*.docx
+*.txt
+*.rtf
+
+# ===================================
+# DEVELOPMENT & TESTING
+# ===================================
+
+# Test files
+test_*.py
+*_test.py
+tests/temp/
+test_data/
+test_results/
+
+# Debug files
+debug_*.py
+debug/
+*.debug
+
+# Check/verification files
+check_*.py
+verify_*.py
+
+# Demo files
+demo_*.py
+
+# Setup files
+setup_*.py
+create_sample_data.py
+
+# Simple test files
+simple_test.py
 
 # Performance profiling
 *.prof
@@ -363,35 +410,146 @@ migrate_*.py
 *.dump
 *.dmp
 
-# Local uploads during development
-uploads/
-temp_uploads/
-test_uploads/
+# ===================================
+# LOGS & TEMPORARY FILES
+# ===================================
 
-# IDE workspace files
-*.code-workspace
-.vscode/launch.json
-.vscode/tasks.json
+# Logs
+logs/
+*.log
+*.log.*
 
-# OS specific
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+*.bak
+*.backup
+*.old
+*.swp
+*.swo
+*~
+
+# ===================================
+# OPERATING SYSTEM
+# ===================================
+
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
 .fuse_hidden*
 .nfs*
+
+# ===================================
+# IDE & EDITORS
+# ===================================
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# ===================================
+# DOCKER & DEPLOYMENT
+# ===================================
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+.docker/
+
+# Kubernetes
+*.yaml.bak
+*.yml.bak
+
+# ===================================
+# SECURITY & SECRETS
+# ===================================
+
+# Environment files with secrets
+.env
+.env.*
+!.env.example
+secrets.json
+config.json
+credentials.json
+service-account-key.json
+
+# API keys
+*.key
+*.pem
+*.crt
+*.csr
+
+# ===================================
+# COMPRESSED FILES
+# ===================================
+
+*.zip
+*.tar.gz
+*.tar.bz2
+*.rar
+*.7z
+*.gz
+*.bz2
+
+# ===================================
+# HIRESENSE AI SPECIFIC
+# ===================================
+
+# Application specific
+*.session
+*.cache
+
+# Local configuration overrides
+config_local.py
+settings_local.py
 
 # Development environment
 .dev/
 .local/
+.development/
+.testing/
 
-# ===================================
-# ROOT DIRECTORY SPECIFIC FILES TO IGNORE
-# ===================================
-
-# Environment file with sensitive API keys and passwords
-.env
-
-# Local database file
-hiring_assistant.db
-
-# Test files in root directory
+# Specific test files in root directory
 test_message_api.py
 test_noreply_account.py
 test_personal_gmail.py
@@ -404,6 +562,8 @@ test_real_functionality.py
 test_schedule_interview.py
 test_api.py
 test_resume.py
+test_interview_crud.py
+test_update_interview.py
 
 # Debug files in root directory
 debug_email.py
@@ -422,12 +582,25 @@ demo_resume.py
 
 # Setup files in root directory
 setup_real_functionality.py
-create_sample_data.py
 
-# Simple test file
-simple_test.py
-
-# Development-specific documentation (keep main README.md)
+# Development-specific documentation
 GETTING_STARTED.md
+REAL_FUNCTIONALITY_GUIDE.md
 
-REAL_FUNCTIONALITY_GUIDE.md 
+# ===================================
+# KEEP THESE FILES (EXCEPTIONS)
+# ===================================
+
+# Keep sample files for documentation
+!samples/
+!sample_resume.txt
+!README.md
+!IMPLEMENTATION_SUMMARY.md
+!docs/
+!.env.example
+
+# Keep important configuration templates
+!docker-compose.yml
+!Dockerfile
+!requirements.txt
+!package.json 
