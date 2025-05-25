@@ -83,6 +83,22 @@ class MCPScoreRequest(BaseModel):
     candidate_id: int
     job_id: int
 
+class CandidateUpdate(BaseModel):
+    name: Optional[str] = None
+    email: Optional[str] = None
+    phone: Optional[str] = None
+    skills: Optional[List[str]] = None
+    experience_years: Optional[int] = None
+    education_level: Optional[str] = None
+    education_score: Optional[float] = None
+    github_url: Optional[str] = None
+
+class JobUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    requirements: Optional[str] = None
+    skills: Optional[str] = None
+
 # Root endpoint
 @app.get("/")
 async def root():
@@ -106,6 +122,20 @@ async def health_check():
             "messenger": "active"
         }
     }
+
+# Debug endpoint to list all routes
+@app.get("/debug/routes")
+async def list_routes():
+    """List all available routes for debugging"""
+    routes = []
+    for route in app.routes:
+        if hasattr(route, 'methods') and hasattr(route, 'path'):
+            routes.append({
+                "path": route.path,
+                "methods": list(route.methods),
+                "name": getattr(route, 'name', 'Unknown')
+            })
+    return {"routes": routes}
 
 # Job Description endpoints
 @api_router.post("/upload-jd")
@@ -701,6 +731,140 @@ async def get_real_time_insights():
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching insights: {str(e)}")
+
+# CRUD endpoints for candidates
+@api_router.put("/candidate/{candidate_id}")
+async def update_candidate(candidate_id: int, candidate_update: CandidateUpdate):
+    """Update candidate information"""
+    try:
+        # Get existing candidate
+        existing_candidate = db.get_candidate_by_id(candidate_id)
+        if not existing_candidate:
+            raise HTTPException(status_code=404, detail="Candidate not found")
+        
+        # Prepare update data (only include non-None values)
+        update_data = {}
+        for field, value in candidate_update.dict().items():
+            if value is not None:
+                update_data[field] = value
+        
+        # If no fields to update
+        if not update_data:
+            raise HTTPException(status_code=400, detail="No fields to update")
+        
+        # Merge with existing data
+        for key, value in existing_candidate.items():
+            if key not in update_data:
+                update_data[key] = value
+        
+        # Update candidate
+        success = db.update_candidate(candidate_id, update_data)
+        if not success:
+            raise HTTPException(status_code=500, detail="Failed to update candidate")
+        
+        # Return updated candidate
+        updated_candidate = db.get_candidate_by_id(candidate_id)
+        return {
+            "success": True,
+            "message": "Candidate updated successfully",
+            "candidate": updated_candidate
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error updating candidate: {str(e)}")
+
+@api_router.delete("/candidate/{candidate_id}")
+async def delete_candidate(candidate_id: int):
+    """Delete candidate and all related data"""
+    try:
+        # Check if candidate exists
+        candidate = db.get_candidate_by_id(candidate_id)
+        if not candidate:
+            raise HTTPException(status_code=404, detail="Candidate not found")
+        
+        # Delete candidate
+        success = db.delete_candidate(candidate_id)
+        if not success:
+            raise HTTPException(status_code=500, detail="Failed to delete candidate")
+        
+        return {
+            "success": True,
+            "message": f"Candidate '{candidate['name']}' deleted successfully"
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error deleting candidate: {str(e)}")
+
+# CRUD endpoints for jobs
+@api_router.put("/jobs/{job_id}")
+async def update_job(job_id: int, job_update: JobUpdate):
+    """Update job description"""
+    try:
+        # Get existing job
+        existing_job = db.get_job_description(job_id)
+        if not existing_job:
+            raise HTTPException(status_code=404, detail="Job not found")
+        
+        # Prepare update data (only include non-None values)
+        update_data = {}
+        for field, value in job_update.dict().items():
+            if value is not None:
+                update_data[field] = value
+        
+        # If no fields to update
+        if not update_data:
+            raise HTTPException(status_code=400, detail="No fields to update")
+        
+        # Merge with existing data
+        for key, value in existing_job.items():
+            if key not in update_data:
+                update_data[key] = value
+        
+        # Update job
+        success = db.update_job_description(job_id, update_data)
+        if not success:
+            raise HTTPException(status_code=500, detail="Failed to update job")
+        
+        # Return updated job
+        updated_job = db.get_job_description(job_id)
+        return {
+            "success": True,
+            "message": "Job updated successfully",
+            "job": updated_job
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error updating job: {str(e)}")
+
+@api_router.delete("/jobs/{job_id}")
+async def delete_job(job_id: int):
+    """Delete job description and all related data"""
+    try:
+        # Check if job exists
+        job = db.get_job_description(job_id)
+        if not job:
+            raise HTTPException(status_code=404, detail="Job not found")
+        
+        # Delete job
+        success = db.delete_job_description(job_id)
+        if not success:
+            raise HTTPException(status_code=500, detail="Failed to delete job")
+        
+        return {
+            "success": True,
+            "message": f"Job '{job['title']}' deleted successfully"
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error deleting job: {str(e)}")
 
 # Model Context Protocol endpoints
 @api_router.post("/mcp/score")

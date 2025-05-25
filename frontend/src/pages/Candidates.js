@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Eye, MessageSquare, Calendar, Star, Filter, Download, MoreVertical, User } from 'lucide-react';
+import { Search, Eye, MessageSquare, Calendar, Star, Filter, Download, MoreVertical, User, Trash2 } from 'lucide-react';
 import api from '../api/config';
 import toast from 'react-hot-toast';
+import CandidateModal from '../components/CandidateModal';
 
 const Candidates = () => {
   const [candidates, setCandidates] = useState([]);
@@ -9,6 +10,8 @@ const Candidates = () => {
   const [selectedJob, setSelectedJob] = useState('');
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCandidate, setSelectedCandidate] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     fetchJobs();
@@ -45,6 +48,32 @@ const Candidates = () => {
       toast.error('Failed to fetch candidates');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleViewCandidate = (candidate) => {
+    setSelectedCandidate(candidate);
+    setIsModalOpen(true);
+  };
+
+  const handleUpdateCandidate = (updatedCandidate) => {
+    setCandidates(candidates.map(candidate => 
+      candidate.id === updatedCandidate.id ? updatedCandidate : candidate
+    ));
+  };
+
+  const handleDeleteCandidate = async (candidate) => {
+    if (window.confirm(`Are you sure you want to delete ${candidate.name}? This action cannot be undone.`)) {
+      try {
+        const response = await api.delete(`/candidate/${candidate.id}`);
+        if (response.data.success) {
+          toast.success(response.data.message);
+          setCandidates(candidates.filter(c => c.id !== candidate.id));
+        }
+      } catch (error) {
+        toast.error('Failed to delete candidate');
+        console.error('Error deleting candidate:', error);
+      }
     }
   };
 
@@ -284,6 +313,7 @@ const Candidates = () => {
                   <td className="table-cell">
                     <div className="flex items-center space-x-2">
                       <button 
+                        onClick={() => handleViewCandidate(candidate)}
                         className="p-2 text-slate-400 hover:text-sky-600 hover:bg-sky-50 rounded-lg transition-all duration-200 group-hover:scale-110"
                         title="View profile"
                       >
@@ -302,10 +332,11 @@ const Candidates = () => {
                         <Calendar className="h-4 w-4" />
                       </button>
                       <button 
-                        className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg transition-all duration-200"
-                        title="More options"
+                        onClick={() => handleDeleteCandidate(candidate)}
+                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200 group-hover:scale-110"
+                        title="Delete candidate"
                       >
-                        <MoreVertical className="h-4 w-4" />
+                        <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
                   </td>
@@ -363,6 +394,17 @@ const Candidates = () => {
           </div>
         </div>
       )}
+
+      {/* Candidate Modal */}
+      <CandidateModal
+        candidate={selectedCandidate}
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setSelectedCandidate(null);
+        }}
+        onUpdate={handleUpdateCandidate}
+      />
     </div>
   );
 };

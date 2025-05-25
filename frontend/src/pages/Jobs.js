@@ -14,12 +14,15 @@ import {
   Trash2
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import JobModal from '../components/JobModal';
 
 const Jobs = () => {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
+  const [selectedJob, setSelectedJob] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     fetchJobs();
@@ -36,6 +39,32 @@ const Jobs = () => {
       toast.error('Failed to load jobs');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleViewJob = (job) => {
+    setSelectedJob(job);
+    setIsModalOpen(true);
+  };
+
+  const handleUpdateJob = (updatedJob) => {
+    setJobs(jobs.map(job => 
+      job.id === updatedJob.id ? updatedJob : job
+    ));
+  };
+
+  const handleDeleteJob = async (job) => {
+    if (window.confirm(`Are you sure you want to delete "${job.title}"? This action cannot be undone and will remove all related candidate scores and interviews.`)) {
+      try {
+        const response = await api.delete(`/jobs/${job.id}`);
+        if (response.data.success) {
+          toast.success(response.data.message);
+          setJobs(jobs.filter(j => j.id !== job.id));
+        }
+      } catch (error) {
+        toast.error('Failed to delete job');
+        console.error('Error deleting job:', error);
+      }
     }
   };
 
@@ -160,27 +189,25 @@ const Jobs = () => {
                 </div>
                 
                 <div className="flex items-center space-x-2 ml-4">
-                  <Link
-                    to={`/jobs/${job.id}`}
+                  <button
+                    onClick={() => handleViewJob(job)}
                     className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                     title="View Details"
                   >
                     <Eye className="w-4 h-4" />
-                  </Link>
-                  <Link
-                    to={`/jobs/${job.id}/edit`}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setSelectedJob(job);
+                      setIsModalOpen(true);
+                    }}
                     className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                     title="Edit Job"
                   >
                     <Edit className="w-4 h-4" />
-                  </Link>
+                  </button>
                   <button
-                    onClick={() => {
-                      if (window.confirm('Are you sure you want to delete this job?')) {
-                        // Handle delete
-                        toast.success('Job deleted successfully');
-                      }
-                    }}
+                    onClick={() => handleDeleteJob(job)}
                     className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                     title="Delete Job"
                   >
@@ -192,6 +219,17 @@ const Jobs = () => {
           ))
         )}
       </div>
+
+      {/* Job Modal */}
+      <JobModal
+        job={selectedJob}
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setSelectedJob(null);
+        }}
+        onUpdate={handleUpdateJob}
+      />
     </div>
   );
 };

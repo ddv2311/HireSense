@@ -349,5 +349,109 @@ class Database:
             }
         return None
 
+    def update_candidate(self, candidate_id: int, candidate_data: Dict) -> bool:
+        """Update candidate information"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            cursor.execute('''
+                UPDATE candidates 
+                SET name = ?, email = ?, phone = ?, skills = ?, experience_years = ?, 
+                    education_level = ?, education_score = ?, github_url = ?
+                WHERE id = ?
+            ''', (
+                candidate_data.get('name', ''),
+                candidate_data.get('email', ''),
+                candidate_data.get('phone', ''),
+                json.dumps(candidate_data.get('skills', [])),
+                candidate_data.get('experience_years', 0),
+                candidate_data.get('education_level', ''),
+                candidate_data.get('education_score', 0.0),
+                candidate_data.get('github_url', ''),
+                candidate_id
+            ))
+            conn.commit()
+            success = cursor.rowcount > 0
+        except Exception as e:
+            print(f"Error updating candidate: {e}")
+            success = False
+        finally:
+            conn.close()
+        
+        return success
+
+    def delete_candidate(self, candidate_id: int) -> bool:
+        """Delete candidate and all related data"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            # Delete related records first
+            cursor.execute('DELETE FROM candidate_scores WHERE candidate_id = ?', (candidate_id,))
+            cursor.execute('DELETE FROM interview_schedules WHERE candidate_id = ?', (candidate_id,))
+            cursor.execute('DELETE FROM messages WHERE candidate_id = ?', (candidate_id,))
+            
+            # Delete candidate
+            cursor.execute('DELETE FROM candidates WHERE id = ?', (candidate_id,))
+            conn.commit()
+            success = cursor.rowcount > 0
+        except Exception as e:
+            print(f"Error deleting candidate: {e}")
+            success = False
+        finally:
+            conn.close()
+        
+        return success
+
+    def update_job_description(self, job_id: int, job_data: Dict) -> bool:
+        """Update job description"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            cursor.execute('''
+                UPDATE job_descriptions 
+                SET title = ?, description = ?, requirements = ?, skills = ?
+                WHERE id = ?
+            ''', (
+                job_data.get('title', ''),
+                job_data.get('description', ''),
+                job_data.get('requirements', ''),
+                job_data.get('skills', ''),
+                job_id
+            ))
+            conn.commit()
+            success = cursor.rowcount > 0
+        except Exception as e:
+            print(f"Error updating job description: {e}")
+            success = False
+        finally:
+            conn.close()
+        
+        return success
+
+    def delete_job_description(self, job_id: int) -> bool:
+        """Delete job description and all related data"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            # Delete related records first
+            cursor.execute('DELETE FROM candidate_scores WHERE job_id = ?', (job_id,))
+            cursor.execute('DELETE FROM interview_schedules WHERE job_id = ?', (job_id,))
+            
+            # Delete job description
+            cursor.execute('DELETE FROM job_descriptions WHERE id = ?', (job_id,))
+            conn.commit()
+            success = cursor.rowcount > 0
+        except Exception as e:
+            print(f"Error deleting job description: {e}")
+            success = False
+        finally:
+            conn.close()
+        
+        return success
+
 # Initialize database instance
 db = Database() 
