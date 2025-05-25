@@ -1,4 +1,4 @@
-from fastapi import FastAPI, File, UploadFile, HTTPException, Form, Depends, APIRouter
+from fastapi import FastAPI, File, UploadFile, HTTPException, Form, Depends, APIRouter, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
@@ -79,6 +79,10 @@ class TimeSlotCreate(BaseModel):
     end_date: str
     interviewer_name: str
 
+class MCPScoreRequest(BaseModel):
+    candidate_id: int
+    job_id: int
+
 # Root endpoint
 @app.get("/")
 async def root():
@@ -106,12 +110,32 @@ async def health_check():
 # Job Description endpoints
 @api_router.post("/upload-jd")
 async def upload_job_description(
+    request: Request,
     file: Optional[UploadFile] = File(None),
-    title: str = Form(...),
+    title: Optional[str] = Form(None),
     description: Optional[str] = Form(None)
 ):
-    """Upload job description (PDF file or text input)"""
+    """Upload job description (PDF file, form data, or JSON)"""
     try:
+        # Check if this is a JSON request
+        content_type = request.headers.get("content-type", "")
+        
+        if "application/json" in content_type:
+            # Handle JSON request
+            body = await request.json()
+            title = body.get("title")
+            description = body.get("description")
+            
+            if not title:
+                raise HTTPException(status_code=400, detail="Title is required")
+            if not description:
+                raise HTTPException(status_code=400, detail="Description is required")
+                
+        else:
+            # Handle form data request
+            if not file and not title:
+                raise HTTPException(status_code=400, detail="Title is required when not uploading a PDF file")
+        
         if file and file.filename.endswith('.pdf'):
             # Save uploaded file
             file_path = f"uploads/job_descriptions/{file.filename}"
@@ -126,6 +150,32 @@ async def upload_job_description(
             jd_data['title'] = title
         else:
             raise HTTPException(status_code=400, detail="Either PDF file or description text is required")
+        
+        # Store in database
+        job_id = db.insert_job_description(
+            title=jd_data['title'],
+            description=jd_data['description'],
+            requirements=json.dumps(jd_data.get('requirements', [])),
+            skills=json.dumps(jd_data['skills'])
+        )
+        
+        return {
+            "success": True,
+            "job_id": job_id,
+            "parsed_data": jd_data
+        }
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error processing job description: {str(e)}")
+
+# JSON endpoint for job descriptions (keeping as backup)
+@api_router.post("/upload-jd-json")
+async def upload_job_description_json(job_data: JobDescriptionCreate):
+    """Upload job description via JSON"""
+    try:
+        # Parse text job description
+        jd_data = jd_parser.parse_job_description(text=job_data.description)
+        jd_data['title'] = job_data.title
         
         # Store in database
         job_id = db.insert_job_description(
@@ -654,16 +704,16 @@ async def get_real_time_insights():
 
 # Model Context Protocol endpoints
 @api_router.post("/mcp/score")
-async def mcp_score_candidate(candidate_id: int, job_id: int):
+async def mcp_score_candidate(mcp_score_request: MCPScoreRequest):
     """Score candidate using Model Context Protocol"""
     try:
         # Get candidate and job data
-        candidate_data = db.get_candidate_by_id(candidate_id)
+        candidate_data = db.get_candidate_by_id(mcp_score_request.candidate_id)
         if not candidate_data:
             raise HTTPException(status_code=404, detail="Candidate not found")
         
         # Initialize MCP context
-        context = mcp.initialize_context(job_id)
+        context = mcp.initialize_context(mcp_score_request.job_id)
         
         # Create MCP request
         request = MCPRequest(
