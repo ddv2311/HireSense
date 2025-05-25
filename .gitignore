@@ -379,4 +379,55 @@ test_uploads/
 
 # Development environment
 .dev/
-.local/ 
+.local/
+
+# ===================================
+# ROOT DIRECTORY SPECIFIC FILES TO IGNORE
+# ===================================
+
+# Environment file with sensitive API keys and passwords
+.env
+
+# Local database file
+hiring_assistant.db
+
+# Test files in root directory
+test_message_api.py
+test_noreply_account.py
+test_personal_gmail.py
+test_new_password.py
+test_email_send.py
+test_email_config.py
+test_message_fix.py
+test_ai_services.py
+test_real_functionality.py
+test_schedule_interview.py
+test_api.py
+test_resume.py
+
+# Debug files in root directory
+debug_email.py
+debug_endpoints.py
+
+# Check/verification files in root directory
+check_gmail_account.py
+check_interviews.py
+check_db_state.py
+verify_env_update.py
+
+# Demo files in root directory
+demo_complete_system.py
+demo_free_ai.py
+demo_resume.py
+
+# Setup files in root directory
+setup_real_functionality.py
+create_sample_data.py
+
+# Simple test file
+simple_test.py
+
+# Development-specific documentation (keep main README.md)
+GETTING_STARTED.md
+FREE_AI_GUIDE.md
+REAL_FUNCTIONALITY_GUIDE.md 

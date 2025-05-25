@@ -18,7 +18,10 @@ from scheduler import interview_scheduler
 from messenger import llm_messenger
 from analytics import recruitment_analytics
 from mcp_protocol import mcp, MCPRequest, MCPMessageType
+from video_analyzer import video_analyzer
+from code_analyzer import code_analyzer
 import uuid
+from config import config
 
 # Create FastAPI app
 app = FastAPI(
@@ -43,6 +46,7 @@ api_router = APIRouter(prefix="/api")
 os.makedirs("uploads/resumes", exist_ok=True)
 os.makedirs("uploads/job_descriptions", exist_ok=True)
 os.makedirs("uploads/videos", exist_ok=True)
+os.makedirs("uploads/code_samples", exist_ok=True)
 
 # Pydantic models
 class JobDescriptionCreate(BaseModel):
@@ -172,9 +176,10 @@ async def get_job_description(job_id: int):
 async def upload_resume(
     file: UploadFile = File(...),
     github_url: Optional[str] = Form(None),
-    video_intro: Optional[UploadFile] = File(None)
+    video_intro: Optional[UploadFile] = File(None),
+    coding_sample: Optional[UploadFile] = File(None)
 ):
-    """Upload and parse resume with optional GitHub and video intro"""
+    """Upload and parse resume with optional GitHub, video intro, and coding sample"""
     try:
         # Check file extension
         file_extension = os.path.splitext(file.filename)[1].lower()
@@ -193,16 +198,63 @@ async def upload_resume(
         candidate_data = resume_parser.parse_resume(resume_path)
         
         # Handle video intro if provided
+        video_analysis = None
         video_path = None
         if video_intro:
             os.makedirs("uploads/videos", exist_ok=True)
             video_path = f"uploads/videos/{video_intro.filename}"
             with open(video_path, "wb") as buffer:
                 shutil.copyfileobj(video_intro.file, buffer)
+            
+            # Analyze video introduction
+            try:
+                video_analysis = video_analyzer.analyze_video_introduction(video_path)
+                candidate_data['video_analysis'] = video_analysis
+                
+                # Add communication score from video analysis
+                if 'overall_score' in video_analysis:
+                    candidate_data['communication_score'] = video_analysis['overall_score'].get('final_score', 0)
+                    
+            except Exception as e:
+                print(f"Video analysis failed: {e}")
+                candidate_data['video_analysis'] = {'error': str(e)}
+        
+        # Handle coding sample if provided
+        code_analysis = None
+        code_path = None
+        if coding_sample:
+            os.makedirs("uploads/code_samples", exist_ok=True)
+            code_path = f"uploads/code_samples/{coding_sample.filename}"
+            with open(code_path, "wb") as buffer:
+                shutil.copyfileobj(coding_sample.file, buffer)
+            
+            # Analyze coding sample
+            try:
+                code_analysis = code_analyzer.analyze_code_sample(code_path)
+                candidate_data['code_analysis'] = code_analysis
+                
+                # Add coding skills to candidate skills if detected
+                if code_analysis.get('language') and code_analysis['language'] != 'unknown':
+                    if 'skills' not in candidate_data:
+                        candidate_data['skills'] = []
+                    candidate_data['skills'].append(code_analysis['language'])
+                
+                # Add technical score from code analysis
+                if 'overall_score' in code_analysis:
+                    candidate_data['technical_score'] = code_analysis['overall_score'].get('final_score', 0)
+                    
+            except Exception as e:
+                print(f"Code analysis failed: {e}")
+                candidate_data['code_analysis'] = {'error': str(e)}
         
         # Add additional data
         candidate_data['github_url'] = github_url
         candidate_data['video_intro_path'] = video_path
+        candidate_data['coding_sample_path'] = code_path
+        
+        # Calculate enhanced score including multi-modal data
+        enhanced_score = calculate_enhanced_candidate_score(candidate_data)
+        candidate_data['enhanced_score'] = enhanced_score
         
         # Store in database
         candidate_id = db.insert_candidate(candidate_data)
@@ -210,7 +262,12 @@ async def upload_resume(
         return {
             "success": True,
             "candidate_id": candidate_id,
-            "parsed_data": candidate_data
+            "parsed_data": candidate_data,
+            "multi_modal_analysis": {
+                "video_analysis": video_analysis,
+                "code_analysis": code_analysis,
+                "enhanced_score": enhanced_score
+            }
         }
     
     except Exception as e:
@@ -667,9 +724,50 @@ app.include_router(api_router)
 async def startup_event():
     """Initialize the application with sample data"""
     print("🚀 Starting Agentic AI Hiring Assistant...")
+    config.print_config_status()
     print("📊 Database initialized")
     print("🤖 AI models loaded")
     print("✅ Application ready!")
+
+def calculate_enhanced_candidate_score(candidate_data: Dict) -> Dict:
+    """Calculate enhanced candidate score including multi-modal analysis"""
+    scores = {
+        'resume_score': candidate_data.get('education_score', 0) * 100,  # Convert to 0-100 scale
+        'communication_score': candidate_data.get('communication_score', 0),
+        'technical_score': candidate_data.get('technical_score', 0),
+        'experience_score': min(candidate_data.get('experience_years', 0) * 10, 100)  # Cap at 100
+    }
+    
+    # Calculate weights based on available data
+    weights = {
+        'resume': 0.4,
+        'communication': 0.2 if scores['communication_score'] > 0 else 0,
+        'technical': 0.3 if scores['technical_score'] > 0 else 0,
+        'experience': 0.1
+    }
+    
+    # Redistribute weights if some components are missing
+    total_weight = sum(weights.values())
+    if total_weight < 1.0:
+        # Redistribute missing weight to resume and experience
+        missing_weight = 1.0 - total_weight
+        weights['resume'] += missing_weight * 0.7
+        weights['experience'] += missing_weight * 0.3
+    
+    # Calculate final score
+    final_score = (
+        scores['resume_score'] * weights['resume'] +
+        scores['communication_score'] * weights['communication'] +
+        scores['technical_score'] * weights['technical'] +
+        scores['experience_score'] * weights['experience']
+    )
+    
+    return {
+        'final_score': round(final_score, 1),
+        'component_scores': scores,
+        'weights_used': weights,
+        'grade': 'A' if final_score >= 90 else 'B' if final_score >= 80 else 'C' if final_score >= 70 else 'D' if final_score >= 60 else 'F'
+    }
 
 if __name__ == "__main__":
     import uvicorn

@@ -2,6 +2,16 @@
 
 A comprehensive, AI-powered hiring automation platform that streamlines the entire recruitment pipeline with intelligent automation, bias detection, and real-time insights.
 
+## 🆓 **100% FREE AI Options Available!**
+
+**No paid subscriptions required!** This system works with completely free AI services:
+- 🚀 **Groq API** (Free tier - faster than OpenAI)
+- 🤗 **Hugging Face** (Free inference API)
+- 🏠 **Ollama** (Local AI - completely private)
+- 🤖 **Local Transformers** (Offline AI models)
+
+**📖 See [FREE_AI_GUIDE.md](FREE_AI_GUIDE.md) for complete setup instructions**
+
 ## 🌟 Enhanced Features
 
 ### ✅ **Resume Intelligence & RAG Matching**
@@ -30,7 +40,7 @@ A comprehensive, AI-powered hiring automation platform that streamlines the enti
 
 ### ✅ **Communication Automation**
 - **Template-based Messaging**: Shortlisting, rejection, interview confirmations
-- **Personalized Content**: AI-generated, context-aware messages
+- **AI-Powered Personalization**: FREE AI-generated, context-aware messages
 - **Bulk Operations**: Mass communication with tracking
 - **Message History**: Complete audit trail
 
@@ -68,12 +78,40 @@ Backend (FastAPI + Python)
 - Node.js 16+
 - Git
 
-### Backend Setup
+### Option 1: FREE AI Setup (Recommended)
+
+For production use with **FREE AI services**, real email sending, and live data:
+
 ```bash
 # Clone repository
 git clone <repository-url>
 cd agentic_hiring_assistant
 
+# Run automated setup with FREE AI options
+python setup_real_functionality.py
+
+# This will configure:
+# ✅ FREE AI services (Groq, Hugging Face, Local models)
+# ✅ Real email sending (SMTP)
+# ✅ Company branding
+# ✅ Environment variables
+# ❌ NO paid subscriptions required!
+```
+
+**🆓 The setup script prioritizes FREE options:**
+- **Groq API**: Free tier with generous limits (faster than OpenAI)
+- **Local Models**: Completely free, runs on your computer
+- **Hugging Face**: Free inference API
+- **Ollama**: Local AI with privacy
+
+**📖 For detailed free AI setup, see [FREE_AI_GUIDE.md](FREE_AI_GUIDE.md)**
+
+### Option 2: Demo Mode Setup
+
+For testing and demonstration with mock data:
+
+### Backend Setup
+```bash
 # Install Python dependencies
 pip install -r requirements.txt
 

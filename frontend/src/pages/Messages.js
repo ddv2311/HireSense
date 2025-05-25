@@ -6,7 +6,9 @@ import toast from 'react-hot-toast';
 const Messages = () => {
   const [messages, setMessages] = useState([]);
   const [candidates, setCandidates] = useState([]);
+  const [jobs, setJobs] = useState([]);
   const [selectedCandidate, setSelectedCandidate] = useState('');
+  const [selectedJob, setSelectedJob] = useState('');
   const [messageType, setMessageType] = useState('shortlisted');
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -14,6 +16,7 @@ const Messages = () => {
   useEffect(() => {
     fetchMessages();
     fetchCandidates();
+    fetchJobs();
   }, []);
 
   const fetchMessages = async () => {
@@ -40,15 +43,31 @@ const Messages = () => {
     }
   };
 
+  const fetchJobs = async () => {
+    try {
+      const response = await api.get('/jobs');
+      if (response.data.success) {
+        setJobs(response.data.jobs);
+        // Auto-select first job if available
+        if (response.data.jobs.length > 0) {
+          setSelectedJob(response.data.jobs[0].id);
+        }
+      }
+    } catch (error) {
+      toast.error('Failed to fetch jobs');
+    }
+  };
+
   const sendMessage = async () => {
-    if (!selectedCandidate || !messageType) {
-      toast.error('Please select a candidate and message type');
+    if (!selectedCandidate || !messageType || !selectedJob) {
+      toast.error('Please select a candidate, job, and message type');
       return;
     }
 
     try {
       const response = await api.post('/send-message', {
-        candidate_id: selectedCandidate,
+        candidate_id: parseInt(selectedCandidate),
+        job_id: parseInt(selectedJob),
         message_type: messageType,
       });
 
@@ -59,6 +78,7 @@ const Messages = () => {
         toast.error(response.data.message || 'Failed to send message');
       }
     } catch (error) {
+      console.error('Send message error:', error);
       toast.error('Failed to send message');
     }
   };
@@ -185,6 +205,24 @@ const Messages = () => {
                   {candidates.map((candidate) => (
                     <option key={candidate.id} value={candidate.id}>
                       {candidate.name} - {candidate.email}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Select Job
+                </label>
+                <select
+                  value={selectedJob}
+                  onChange={(e) => setSelectedJob(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">Choose a job...</option>
+                  {jobs.map((job) => (
+                    <option key={job.id} value={job.id}>
+                      {job.title}
                     </option>
                   ))}
                 </select>
